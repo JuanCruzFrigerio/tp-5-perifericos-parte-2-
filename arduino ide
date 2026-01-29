@@ -1,0 +1,47 @@
+// LEDs
+int ledAzul = 2;
+int ledRojo = 3;
+
+// Pulsadores
+int btnIzq = 12;
+int btnDer = 13;
+
+void setup() {
+  pinMode(ledAzul, OUTPUT);
+  pinMode(ledRojo, OUTPUT);
+
+  pinMode(btnIzq, INPUT);
+  pinMode(btnDer, INPUT);
+
+  Serial.begin(9600);
+}
+
+void loop() {
+  int b1 = digitalRead(btnIzq);
+  int b2 = digitalRead(btnDer);
+
+  // Control local
+  digitalWrite(ledAzul, b1);
+  digitalWrite(ledRojo, b2);
+
+  // Enviar estados a Processing
+  Serial.print("B1=");
+  Serial.print(b1);
+  Serial.print(";");
+
+  Serial.print("B2=");
+  Serial.print(b2);
+  Serial.println(";");
+
+  // Recibir comandos desde Processing
+  if (Serial.available()) {
+    char c = Serial.read();
+
+    if (c == 'A') digitalWrite(ledAzul, HIGH);
+    if (c == 'a') digitalWrite(ledAzul, LOW);
+    if (c == 'R') digitalWrite(ledRojo, HIGH);
+    if (c == 'r') digitalWrite(ledRojo, LOW);
+  }
+
+  delay(100);
+}
