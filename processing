@@ -1,0 +1,81 @@
+import processing.serial.*;
+
+Serial arduino;
+
+// Estados de entradas (Arduino → Processing)
+int b1 = 0;
+int b2 = 0;
+
+// Estados de salidas (Processing → Arduino)
+boolean ledAzul = false;
+boolean ledRojo = false;
+
+void setup() {
+  size(600, 350);
+
+  // Puerto fijo (según tu PC)
+  arduino = new Serial(this, "COM3", 9600);
+  arduino.bufferUntil('\n');
+}
+
+void draw() {
+  background(230);
+
+  textSize(16);
+  fill(0);
+  text("ENTRADAS", 90, 40);
+  text("SALIDAS", 390, 40);
+
+  // ---------- ENTRADAS ----------
+  fill(b1 == 1 ? color(0, 200, 0) : color(200, 0, 0));
+  rect(80, 70, 80, 80);
+  fill(0);
+  text("BTN IZQ", 85, 170);
+
+  fill(b2 == 1 ? color(0, 200, 0) : color(200, 0, 0));
+  rect(80, 200, 80, 80);
+  fill(0);
+  text("BTN DER", 85, 300);
+
+  // ---------- SALIDAS ----------
+  fill(ledAzul ? color(0, 180, 255) : color(150));
+  rect(380, 70, 80, 80);
+  fill(0);
+  text("LED AZUL", 365, 170);
+
+  fill(ledRojo ? color(255, 0, 0) : color(150));
+  rect(380, 200, 80, 80);
+  fill(0);
+  text("LED ROJO", 365, 300);
+}
+
+void serialEvent(Serial arduino) {
+  String data = arduino.readStringUntil('\n');
+  if (data == null) return;
+
+  data = trim(data);
+
+  
+  String[] partes = split(data, ';');
+  for (String p : partes) {
+    if (p.equals("B1=1")) b1 = 1;
+    if (p.equals("B1=0")) b1 = 0;
+    if (p.equals("B2=1")) b2 = 1;
+    if (p.equals("B2=0")) b2 = 0;
+  }
+}
+
+void mousePressed() {
+  // LED AZUL
+  if (mouseX > 380 && mouseX < 460 && mouseY > 70 && mouseY < 150) {
+    ledAzul = !ledAzul;
+    arduino.write(ledAzul ? 'A' : 'a');
+  }
+
+  // LED ROJO
+  if (mouseX > 380 && mouseX < 460 && mouseY > 200 && mouseY < 280) {
+    ledRojo = !ledRojo;
+    arduino.write(ledRojo ? 'R' : 'r');
+  }
+}
+
